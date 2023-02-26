@@ -14,6 +14,9 @@ type Request[H, B any] struct {
 	body   B
 }
 
+func (q Request[H, B]) Header() H { return q.header }
+func (q Request[H, B]) Body() B   { return q.body }
+
 func RequestNew[H, B any](header H, body B) Request[H, B] {
 	return Request[H, B]{
 		header,

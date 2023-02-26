@@ -1,7 +1,12 @@
 package saver
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
+	"io"
 	"net/http"
+	"os"
 )
 
 type RequestSaver[Q, R any] func(request Q) (result R, e error)
@@ -24,6 +29,79 @@ func RequestSaverNew[Q, S, R any](
 	return Compose(
 		serializer,
 		saver,
+	)
+}
+
+func RequestSaverNewWriter[Q any](
+	serializer func(request Q) (serialized []byte, e error),
+	writer io.Writer,
+) RequestSaver[Q, int64] {
+	return RequestSaverNew(
+		serializer,
+		func(serialized []byte) (written int64, e error) {
+			var rdr *bytes.Reader = bytes.NewReader(serialized)
+			return io.Copy(writer, rdr)
+		},
+	)
+}
+
+func RequestSaverNewFsSelfChecked[Q any](
+	serializer func(request Q) (selfCheckedBytes []byte, e error),
+	nameGen func() (fullpath string),
+	bytes2file func(fullpath string, selfCheckedBytes []byte) (written int64, e error),
+) RequestSaver[Q, int64] {
+	var b2f func(fullpath string) func([]byte) (int64, error) = Curry(bytes2file)
+	return RequestSaverNew(
+		serializer,
+		func(selfCheckedBytes []byte) (written int64, e error) {
+			return b2f(nameGen())(selfCheckedBytes)
+		},
+	)
+}
+
+func RequestSaverNewFsSelfCheckedWithFileMode[Q any](
+	serializer func(request Q) (selfCheckedBytes []byte, e error),
+	nameGen func() (fullpath string),
+	filemode os.FileMode,
+) RequestSaver[Q, int64] {
+	return RequestSaverNewFsSelfChecked(
+		serializer,
+		nameGen,
+		func(fullpath string, selfCheckedBytes []byte) (written int64, e error) {
+			return Compose(
+				func(writer func(string, []byte, os.FileMode) error) (int, error) {
+					return len(selfCheckedBytes), writer(fullpath, selfCheckedBytes, filemode)
+				},
+				func(written int) (int64, error) { return int64(written), nil },
+			)(os.WriteFile)
+		},
+	)
+}
+
+func RequestSaverNewFsNoFsync[Q any](
+	serializer func(request Q) (selfCheckedBytes []byte, e error),
+	nameGen func() (fullpath string),
+	createFile func(fullpath string) (*os.File, error),
+) RequestSaver[Q, int64] {
+	var writer *bufio.Writer = bufio.NewWriter(nil)
+	return RequestSaverNewFsSelfChecked(
+		serializer,
+		nameGen,
+		func(fullpath string, selfCheckedBytes []byte) (written int64, e error) {
+			return Compose(
+				createFile,
+				func(f *os.File) (int64, error) {
+					writer.Reset(f)
+
+					written, e = Compose(
+						Curry(io.Copy)(writer),
+						func(written int64) (int64, error) { return written, writer.Flush() },
+					)(bytes.NewReader(selfCheckedBytes))
+
+					return written, errors.Join(e, f.Close())
+				},
+			)(fullpath)
+		},
 	)
 }
 

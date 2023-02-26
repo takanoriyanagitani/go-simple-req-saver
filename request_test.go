@@ -1,6 +1,8 @@
 package saver_test
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	saver "github.com/takanoriyanagitani/go-simple-req-saver"
@@ -115,6 +117,54 @@ func TestRequest(t *testing.T) {
 					"content encoding",
 					checker(tr, "body/body", []byte(reqBody)),
 				)
+
+			})
+		})
+	})
+
+	t.Run("RequestStdConv", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("RequestStdConvNew", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("limited request", func(t *testing.T) {
+				t.Parallel()
+
+				const limit int64 = 65536
+
+				var rsc saver.RequestStdConv = saver.RequestStdConvNew(limit)
+				var dummySerializedBody []byte = []byte(`{
+					"status_200": 3776,
+					"status_400": 634,
+					"status_404": 42,
+					"status_500": 2,
+					"unixtime": 123456789
+				}`)
+				var q *http.Request = httptest.NewRequest(
+					"POST",
+					"/api/v1/write",
+					bytes.NewReader(dummySerializedBody),
+				)
+				var h http.Header = q.Header
+				h.Set("Content-Type", "application/json")
+
+				converted, e := rsc(q)
+				t.Run("no error", assertNil(e))
+
+				var conv saver.Request[http.Header, []byte] = saver.Request[http.Header, []byte](
+					converted,
+				)
+
+				t.Run("type check", assertEq(
+					conv.Header().Get("Content-Type"),
+					"application/json",
+				))
+
+				t.Run("body check", assertTrue(bytes.Equal(
+					conv.Body(),
+					dummySerializedBody,
+				)))
 
 			})
 		})
