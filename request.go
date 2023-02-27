@@ -95,6 +95,12 @@ func RequestSerializerNewGenericTar[H, B any](
 
 type RequestStd Request[http.Header, []byte]
 
+func (q RequestStd) Serialize2bytes(
+	ser RequestSerializer[[]byte, http.Header, []byte],
+) (serialized []byte, e error) {
+	return ser(Request[http.Header, []byte](q))
+}
+
 type RequestStdConv func(*http.Request) (RequestStd, error)
 
 func RequestStdConvNew(limit int64) RequestStdConv {
