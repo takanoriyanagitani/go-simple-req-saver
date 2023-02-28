@@ -102,6 +102,16 @@ func (q RequestStd) Serialize2bytes(
 }
 
 type RequestStdConv func(*http.Request) (RequestStd, error)
+type RequestStd2bytes func(*http.Request) (serialized []byte, e error)
+
+func (c RequestStdConv) NewRequestStd2bytes(
+	ser RequestSerializer[[]byte, http.Header, []byte],
+) RequestStd2bytes {
+	return Compose(
+		c,
+		func(s RequestStd) ([]byte, error) { return s.Serialize2bytes(ser) },
+	)
+}
 
 func RequestStdConvNew(limit int64) RequestStdConv {
 	var buf bytes.Buffer
