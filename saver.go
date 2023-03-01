@@ -115,7 +115,7 @@ func RequestSaverNewStd[S, R any](
 }
 
 func RequestSaverNewStdBytes[R any](
-	serializer func(request *http.Request) (serialized []byte, e error),
+	serializer RequestStd2bytes,
 	saver func(serialized []byte) (result R, e error),
 ) RequestSaverStd[R] {
 	return RequestSaverNewStd(serializer, saver)
