@@ -120,3 +120,9 @@ func RequestSaverNewStdBytes[R any](
 ) RequestSaverStd[R] {
 	return RequestSaverNewStd(serializer, saver)
 }
+
+type BytesSaver func(serialized []byte) (bytesCount int64, e error)
+
+func (b BytesSaver) NewRequestSaverStd(serializer RequestStd2bytes) RequestSaverStd[int64] {
+	return RequestSaverNewStdBytes(serializer, b)
+}
