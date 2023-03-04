@@ -108,6 +108,15 @@ var NopStdRequestSerializer RequestStd2bytes = func(_ *http.Request) ([]byte, er
 	return nil, nil
 }
 
+func DupStdRequestSerializerNew() RequestStd2bytes {
+	var buf bytes.Buffer
+	return func(q *http.Request) (serialized []byte, e error) {
+		buf.Reset()
+		_, e = io.Copy(&buf, q.Body)
+		return buf.Bytes(), e
+	}
+}
+
 func (c RequestStdConv) NewRequestStd2bytes(
 	ser RequestSerializer[[]byte, http.Header, []byte],
 ) RequestStd2bytes {
