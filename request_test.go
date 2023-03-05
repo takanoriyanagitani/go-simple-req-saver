@@ -169,4 +169,41 @@ func TestRequest(t *testing.T) {
 			})
 		})
 	})
+
+	t.Run("DupStdRequestSerializerNew", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("empty", func(t *testing.T) {
+			t.Parallel()
+			var dupSerializer saver.RequestStd2bytes = saver.DupStdRequestSerializerNew()
+
+			var emptyBody bytes.Buffer
+			var postRequest *http.Request = httptest.NewRequest(
+				"POST",
+				"/",
+				&emptyBody,
+			)
+
+			serialized, e := dupSerializer(postRequest)
+			t.Run("no error", assertNil(e))
+			t.Run("empty body", assertEq(len(serialized), 0))
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			t.Parallel()
+			var dupSerializer saver.RequestStd2bytes = saver.DupStdRequestSerializerNew()
+
+			var body *bytes.Reader = bytes.NewReader([]byte("hw"))
+			var postRequest *http.Request = httptest.NewRequest(
+				"POST",
+				"/",
+				body,
+			)
+
+			serialized, e := dupSerializer(postRequest)
+			t.Run("no error", assertNil(e))
+			t.Run("same body", assertTrue(bytes.Equal(serialized, []byte("hw"))))
+		})
+
+	})
 }
