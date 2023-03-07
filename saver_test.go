@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"bytes"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 
@@ -70,6 +72,79 @@ func TestSaver(t *testing.T) {
 				saved, found := dummyFs["./00.request.json"]
 				t.Run("dummy file check", assertTrue(found))
 				t.Run("dummy content check", assertTrue(bytes.Equal(saved, dummySerialized)))
+			})
+		})
+
+		t.Run("RequestSaverLimitedNew", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("array limiter", func(t *testing.T) {
+				t.Parallel()
+
+				var ser saver.RequestStd2bytes = saver.DupStdRequestSerializerNew()
+				const limit int = 3
+				var buf [][256]byte = make([][256]byte, 0, limit)
+				var saved [][256]byte = buf[:0]
+				var temp [256]byte
+
+				var sav saver.BytesSaver = func(serialized []byte) (bytesCount int64, e error) {
+					var i int = copy(temp[:], serialized)
+					saved = append(saved, temp)
+					bytesCount = int64(i)
+					return
+				}
+				var req2saver saver.RequestSaverStd[int64] = sav.NewRequestSaverStd(ser)
+
+				var limiter saver.RequestLimiter[int] = func(ixLimit int) (tooMany bool) {
+					return limit <= len(saved)
+				}
+
+				var limitedBuilder saver.RequestSaverLimitedBuilder[
+					*http.Request,
+					int64,
+					int,
+				] = saver.RequestSaverLimitedNew[*http.Request, int64, int](limiter)
+
+				var saverBuilder func(
+					saver.RequestSaver[*http.Request, int64],
+				) saver.RequestSaver[*http.Request, int64] = limitedBuilder(limit)
+
+				var limitedSaver saver.RequestSaver[*http.Request, int64] = saverBuilder(
+					saver.RequestSaver[*http.Request, int64](req2saver),
+				)
+
+				var body *bytes.Reader = bytes.NewReader([]byte("hw"))
+				_, e := limitedSaver(httptest.NewRequest(
+					"POST",
+					"/",
+					body,
+				))
+				t.Run("no error 1", assertNil(e))
+
+				body.Reset([]byte("hh"))
+				_, e = limitedSaver(httptest.NewRequest(
+					"POST",
+					"/",
+					body,
+				))
+				t.Run("no error 2", assertNil(e))
+
+				body.Reset([]byte("iii"))
+				_, e = limitedSaver(httptest.NewRequest(
+					"POST",
+					"/",
+					body,
+				))
+				t.Run("no error 3", assertNil(e))
+
+				body.Reset([]byte("iv"))
+				_, e = limitedSaver(httptest.NewRequest(
+					"POST",
+					"/",
+					body,
+				))
+				t.Run("must fail", assertTrue(nil != e))
+
 			})
 		})
 	})

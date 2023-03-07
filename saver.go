@@ -11,6 +11,27 @@ import (
 
 type RequestSaver[Q, R any] func(request Q) (result R, e error)
 
+var RequestLimiterErrTooMany error = errors.New("too many requests")
+
+type RequestLimiter[L any] func(limit L) (tooMany bool)
+
+type RequestSaverLimitedBuilder[Q, R, L any] func(lmt L) func(RequestSaver[Q, R]) RequestSaver[Q, R]
+
+func RequestSaverLimitedNew[Q, R, L any](l RequestLimiter[L]) RequestSaverLimitedBuilder[Q, R, L] {
+	return func(limit L) func(RequestSaver[Q, R]) RequestSaver[Q, R] {
+		return func(original RequestSaver[Q, R]) RequestSaver[Q, R] {
+			return func(request Q) (result R, e error) {
+				var tooMany bool = l(limit)
+				if tooMany {
+					e = RequestLimiterErrTooMany
+					return
+				}
+				return original(request)
+			}
+		}
+	}
+}
+
 type RequestSaverStd[R any] RequestSaver[*http.Request, R]
 
 func (s RequestSaverStd[R]) ToHandlerFunc(
