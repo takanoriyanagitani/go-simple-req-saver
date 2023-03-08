@@ -68,7 +68,7 @@ func main() {
 	var req2tar2redis saver.RequestSaverStd[int64] = req2tar2redisBuilderDefault(pool)
 	var locked saver.RequestSaverStd[int64] = reqSaverLockedNew(req2tar2redis)
 
-	http.HandleFunc("/", reqHandlerNew(locked))
+	http.HandleFunc("/api/v1/write", reqHandlerNew(locked))
 	e = http.ListenAndServe(":8888", nil)
 	if nil != e {
 		panic(e)
