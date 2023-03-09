@@ -15,6 +15,7 @@ var RequestLimiterErrTooMany error = errors.New("too many requests")
 
 type RequestLimiter[L any] func(limit L) (tooMany bool)
 
+// A RequestSaverLimitedBuilder creates a request saver which may reject saves.
 type RequestSaverLimitedBuilder[Q, R, L any] func(lmt L) func(RequestSaver[Q, R]) RequestSaver[Q, R]
 
 func RequestSaverLimitedNew[Q, R, L any](l RequestLimiter[L]) RequestSaverLimitedBuilder[Q, R, L] {
