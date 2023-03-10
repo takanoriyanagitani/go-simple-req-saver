@@ -56,6 +56,7 @@ test_curl(){
         --to-stdout \
         header/User-Agent
     echo;
+    exit 0
 }
 
 test_avalanche(){
@@ -64,12 +65,11 @@ test_avalanche(){
       --remote-requests-count=100 \
       --remote-url=$url
     keycnt=$( redis-cli llen $key )
-    test 300 -eq ${keycnt} && exit 0
-    echo Unexpected key cnt: ${keycnt}
-    exit 1
+    test 300 -eq ${keycnt} || exec sh -c "echo Unexpected key cnt: ${keycnt}; exit 1"
+    exit 0
 }
 
-main(){
+test_default(){
     ps h -C req2redis | fgrep --silent req2redis \
       || exec echo req2redis not running.
 
@@ -86,4 +86,63 @@ main(){
     test_curl
 }
 
-main
+test_redis(){
+    which redis-cli | fgrep --silent redis-cli || exec echo redis-cli missing.
+
+    local typ=$(
+        redis-cli lrange $key 0 0 |
+            tar \
+            --extract \
+            --to-stdout \
+            header/Content-Type
+    )
+    test "application/x-protobuf" = "$typ" || exec echo Unexpected content type
+
+    local encoding=$(
+        redis-cli lrange $key 0 0 |
+            tar \
+            --extract \
+            --to-stdout \
+            header/Content-Encoding
+    )
+    test "snappy" = "$encoding" || exec echo Unexpected content encoding
+
+    which snappytool | fgrep --silent snappytool || exec echo snappytool missing.
+
+    local size=$(
+        redis-cli lrange $key 0 0 |
+            tar \
+            --extract \
+            --to-stdout \
+            body/body \
+            | snappytool -d \
+            | wc --bytes
+    )
+
+    test 0 -lt $size || exec echo empty data.
+    exit 0
+}
+
+main(){
+    local typ="$1"
+    local arg="$2"
+
+    test 0 = ${#typ} && test 0 = ${#arg} && test_default
+
+    case "$typ" in
+        avalanche)
+            test_avalanche
+            ;;
+        curl)
+            test_curl
+            ;;
+        redis)
+            test_redis
+            ;;
+        *)
+            exec "$0"
+            ;;
+    esac
+}
+
+main "$1" "$2"
