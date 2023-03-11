@@ -120,6 +120,7 @@ test_redis(){
     )
 
     test 0 -lt $size || exec echo empty data.
+    echo decoded bytes: $size
     exit 0
 }
 
