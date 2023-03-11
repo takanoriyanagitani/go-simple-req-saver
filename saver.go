@@ -11,6 +11,13 @@ import (
 
 type RequestSaver[Q, R any] func(request Q) (result R, e error)
 
+func RequestSaverNewKV[Q, R, P any](
+	request2kvpair func(request Q) (kvpair P, e error),
+	saver func(kvpair P) (result R, e error),
+) RequestSaver[Q, R] {
+	return Compose(request2kvpair, saver)
+}
+
 var RequestLimiterErrTooMany error = errors.New("too many requests")
 
 type RequestLimiter[L any] func(limit L) (tooMany bool)

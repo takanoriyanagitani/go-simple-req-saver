@@ -12,6 +12,21 @@ import (
 	saver "github.com/takanoriyanagitani/go-simple-req-saver"
 )
 
+type testSaverKvPair struct {
+	bucket string
+	key    string
+	val    []byte
+}
+
+func (p *testSaverKvPair) updateBucket(bucket map[string][]byte) { bucket[p.key] = p.val }
+func (p *testSaverKvPair) upsert(buckets map[string]map[string][]byte) {
+	bucket, found := buckets[p.bucket]
+	if !found {
+		bucket = make(map[string][]byte)
+	}
+	p.updateBucket(bucket)
+}
+
 func assertEqNew[T any](comp func(a, b T) (same bool)) func(a, b T) func(*testing.T) {
 	return func(a, b T) func(*testing.T) {
 		return func(t *testing.T) {
@@ -146,6 +161,31 @@ func TestSaver(t *testing.T) {
 				t.Run("must fail", assertTrue(nil != e))
 
 			})
+		})
+
+		t.Run("RequestSaverNewKV", func(t *testing.T) {
+			t.Parallel()
+
+			var buckets map[string]map[string][]byte = make(map[string]map[string][]byte)
+			var sav func(*testSaverKvPair) (result int, e error) = func(p *testSaverKvPair) (int, error) {
+				p.upsert(buckets)
+				return 1, nil
+			}
+			var dummyRequest uint8 = 0
+			var dummyRequest2pair func(_ uint8) (*testSaverKvPair, error) = func(_ uint8) (*testSaverKvPair, error) {
+				return &testSaverKvPair{
+					bucket: "2023_03_12",
+					key:    "12:34:56.789Z",
+					val:    []byte("hw"),
+				}, nil
+			}
+			var rs saver.RequestSaver[uint8, int] = saver.RequestSaverNewKV(
+				dummyRequest2pair,
+				sav,
+			)
+			cnt, e := rs(dummyRequest)
+			t.Run("no error", assertNil(e))
+			t.Run("single item", assertEq(cnt, 1))
 		})
 	})
 }
