@@ -11,6 +11,11 @@ import (
 
 type RequestSaver[Q, R any] func(request Q) (result R, e error)
 
+// RequestSaverNewKV creates a request saver which saves a key/value pair.
+//
+// Arguments
+//   - request2kvpair: Gets a key/value pair from a request.
+//   - saver: Saves a key/value pair.
 func RequestSaverNewKV[Q, R, P any](
 	request2kvpair func(request Q) (kvpair P, e error),
 	saver func(kvpair P) (result R, e error),
