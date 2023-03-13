@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// RequestSaver saves a request.
 type RequestSaver[Q, R any] func(request Q) (result R, e error)
 
 // RequestSaverNewKV creates a request saver which saves a key/value pair.
