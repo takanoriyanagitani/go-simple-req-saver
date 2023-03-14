@@ -46,6 +46,7 @@ func RequestSaverLimitedNew[Q, R, L any](l RequestLimiter[L]) RequestSaverLimite
 	}
 }
 
+// RequestSaverStd saves a standard(net/http) request.
 type RequestSaverStd[R any] RequestSaver[*http.Request, R]
 
 func (s RequestSaverStd[R]) ToHandlerFunc(
