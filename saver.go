@@ -14,7 +14,7 @@ type RequestSaver[Q, R any] func(request Q) (result R, e error)
 
 // RequestSaverNewKV creates a request saver which saves a key/value pair.
 //
-// Arguments
+// # Arguments
 //   - request2kvpair: Gets a key/value pair from a request.
 //   - saver: Saves a key/value pair.
 func RequestSaverNewKV[Q, R, P any](
@@ -49,6 +49,10 @@ func RequestSaverLimitedNew[Q, R, L any](l RequestLimiter[L]) RequestSaverLimite
 // RequestSaverStd saves a standard(net/http) request.
 type RequestSaverStd[R any] RequestSaver[*http.Request, R]
 
+// ToHandlerFunc converts a RequestSaverStd to a HandlerFunc.
+//
+// # Arguments
+//   - result2writer: Writes a save result.
 func (s RequestSaverStd[R]) ToHandlerFunc(
 	result2writer func(result R, e error, writer http.ResponseWriter),
 ) http.HandlerFunc {
