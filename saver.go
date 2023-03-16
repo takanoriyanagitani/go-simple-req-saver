@@ -62,6 +62,11 @@ func (s RequestSaverStd[R]) ToHandlerFunc(
 	}
 }
 
+// RequestSaverNew creates a RequestSaver which saves a serialized request.
+//
+// # Arguments
+//   - serializer: Serializes a request.
+//   - saver: Saves a serialized request.
 func RequestSaverNew[Q, S, R any](
 	serializer func(request Q) (serialized S, e error),
 	saver func(serialized S) (result R, e error),
