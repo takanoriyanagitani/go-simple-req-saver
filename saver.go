@@ -150,6 +150,11 @@ func RequestSaverNewFsNoFsync[Q any](
 	)
 }
 
+// RequestSaverNewStd creates a request saver which saves a serialized standard request.
+//
+// # Arguments
+//   - serializer: Serializes a standard(net/http) request.
+//   - saver: Saves a serialized request.
 func RequestSaverNewStd[S, R any](
 	serializer func(request *http.Request) (serialized S, e error),
 	saver func(serialized S) (result R, e error),
