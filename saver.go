@@ -176,6 +176,7 @@ func RequestSaverNewStdBytes[R any](
 	return RequestSaverNewStd(serializer, saver)
 }
 
+// BytesSaver saves a slice of bytes.
 type BytesSaver func(serialized []byte) (bytesCount int64, e error)
 
 func (b BytesSaver) NewRequestSaverStd(serializer RequestStd2bytes) RequestSaverStd[int64] {
