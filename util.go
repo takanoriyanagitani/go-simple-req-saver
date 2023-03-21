@@ -13,6 +13,11 @@ func Compose[T, U, V any](
 	}
 }
 
+// Get1stOrDefault tries to get the 1st element of a slice.
+//
+// # Returns
+//   - The 1st element of a slice if a slice has an item.
+//   - The zero value for a type T if a slice is empty.
 func Get1stOrDefault[T any](s []T) (t T) {
 	if 0 < len(s) {
 		return s[0]
