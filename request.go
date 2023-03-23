@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// A Http Request.
 type Request[H, B any] struct {
 	header H
 	body   B
