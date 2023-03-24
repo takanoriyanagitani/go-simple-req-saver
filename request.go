@@ -21,6 +21,7 @@ func (q Request[H, B]) Header() H { return q.header }
 // Body gets a http request body.
 func (q Request[H, B]) Body() B { return q.body }
 
+// RequestNew creates a request.
 func RequestNew[H, B any](header H, body B) Request[H, B] {
 	return Request[H, B]{
 		header,
