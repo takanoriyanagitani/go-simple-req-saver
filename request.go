@@ -29,6 +29,7 @@ func RequestNew[H, B any](header H, body B) Request[H, B] {
 	}
 }
 
+// RequestSerializer must serialize a request.
 type RequestSerializer[S, H, B any] func(Request[H, B]) (serialized S, e error)
 
 func RequestSerializerNewGeneric[P, S, H, B any](
