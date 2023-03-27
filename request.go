@@ -36,7 +36,7 @@ type RequestSerializer[S, H, B any] func(Request[H, B]) (serialized S, e error)
 //
 // # Arguments
 //   - getHeaders: Gets header items(key/value pairs).
-//   - headerKey2string: Converts a header key to a slice of bytes.
+//   - headerKey2string: Gets a header key string.
 //   - getBodyBytes: Gets a request body(a slice of bytes).
 //   - initialize: Initializes a serializer.
 //   - generic: Writes an item(namespace/name/content).
@@ -66,6 +66,13 @@ func RequestSerializerNewGeneric[P, S, H, B any](
 	}
 }
 
+// RequestSerializerNewGenericTar creates a request serializer which creates a tar archive(a slice of bytes).
+//
+// # Arguments
+//   - getHeaders: Gets header items(key/value pairs).
+//   - headerKey2string: Gets a header key string.
+//   - getBodyBytes: Gets a request body(a slice of bytes).
+//   - errorHandler: Handles errors.
 func RequestSerializerNewGenericTar[H, B any](
 	getHeaders func(header H, user func(key, val []byte)),
 	headerKey2string func(headerKey []byte) string,
