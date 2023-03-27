@@ -115,6 +115,7 @@ func RequestSerializerNewGenericTar[H, B any](
 	)
 }
 
+// RequestStd is a standard(net/http) request.
 type RequestStd Request[http.Header, []byte]
 
 func (q RequestStd) Serialize2bytes(
