@@ -32,6 +32,15 @@ func RequestNew[H, B any](header H, body B) Request[H, B] {
 // RequestSerializer must serialize a request.
 type RequestSerializer[S, H, B any] func(Request[H, B]) (serialized S, e error)
 
+// RequestSerializerNewGeneric creates a request serializer.
+//
+// # Arguments
+//   - getHeaders: Gets header items(key/value pairs).
+//   - headerKey2string: Converts a header key to a slice of bytes.
+//   - getBodyBytes: Gets a request body(a slice of bytes).
+//   - initialize: Initializes a serializer.
+//   - generic: Writes an item(namespace/name/content).
+//   - finalize: Finalizes a serializer.
 func RequestSerializerNewGeneric[P, S, H, B any](
 	getHeaders func(header H, user func(key, val []byte)),
 	headerKey2string func(headerKey []byte) string,
