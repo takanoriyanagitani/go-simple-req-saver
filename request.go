@@ -125,6 +125,8 @@ func (q RequestStd) Serialize2bytes(
 }
 
 type RequestStdConv func(*http.Request) (RequestStd, error)
+
+// RequestStd2bytes must serialize a standard(net/http) request as a slice of bytes.
 type RequestStd2bytes func(*http.Request) (serialized []byte, e error)
 
 var NopStdRequestSerializer RequestStd2bytes = func(_ *http.Request) ([]byte, error) {
