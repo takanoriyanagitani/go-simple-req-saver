@@ -133,6 +133,7 @@ var NopStdRequestSerializer RequestStd2bytes = func(_ *http.Request) ([]byte, er
 	return nil, nil
 }
 
+// DupStdRequestSerializerNew creates a request serializer which copies a request body.
 func DupStdRequestSerializerNew() RequestStd2bytes {
 	var buf bytes.Buffer
 	return func(q *http.Request) (serialized []byte, e error) {
