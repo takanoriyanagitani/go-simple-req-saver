@@ -124,6 +124,7 @@ func (q RequestStd) Serialize2bytes(
 	return ser(Request[http.Header, []byte](q))
 }
 
+// RequestStdConv must get a slice of bytes from a standard(net/http) request.
 type RequestStdConv func(*http.Request) (RequestStd, error)
 
 // RequestStd2bytes must serialize a standard(net/http) request as a slice of bytes.
