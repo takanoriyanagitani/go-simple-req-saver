@@ -153,6 +153,10 @@ func (c RequestStdConv) NewRequestStd2bytes(
 	)
 }
 
+// RequestStdConvNew creates a standard(net/http) request converter.
+//
+// # Arguments
+//   - limit: Number of bytes to read(resource limit).
 func RequestStdConvNew(limit int64) RequestStdConv {
 	var buf bytes.Buffer
 	return func(r *http.Request) (q RequestStd, e error) {
