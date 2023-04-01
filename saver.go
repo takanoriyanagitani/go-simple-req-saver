@@ -26,6 +26,7 @@ func RequestSaverNewKV[Q, R, P any](
 
 var RequestLimiterErrTooMany error = errors.New("too many requests")
 
+// RequestLimiter can be used to limit too many requests.
 type RequestLimiter[L any] func(limit L) (tooMany bool)
 
 // A RequestSaverLimitedBuilder creates a request saver which may reject saves.
