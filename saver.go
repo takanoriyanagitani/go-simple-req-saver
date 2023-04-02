@@ -32,6 +32,10 @@ type RequestLimiter[L any] func(limit L) (tooMany bool)
 // A RequestSaverLimitedBuilder creates a request saver which may reject saves.
 type RequestSaverLimitedBuilder[Q, R, L any] func(lmt L) func(RequestSaver[Q, R]) RequestSaver[Q, R]
 
+// RequestSaverLimitedNew creates a request saver builder.
+//
+// # Arguments
+//   - l: Rejects too many requests.
 func RequestSaverLimitedNew[Q, R, L any](l RequestLimiter[L]) RequestSaverLimitedBuilder[Q, R, L] {
 	return func(limit L) func(RequestSaver[Q, R]) RequestSaver[Q, R] {
 		return func(original RequestSaver[Q, R]) RequestSaver[Q, R] {
