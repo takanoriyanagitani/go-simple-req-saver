@@ -95,6 +95,12 @@ func RequestSaverNewWriter[Q any](
 	)
 }
 
+// RequestSaverNewFsSelfChecked creates a request saver which saves a request as a file.
+//
+// # Arguments
+//   - serializer: Gets a serialized bytes which may contain check sums.
+//   - nameGen: Creates a filename which may contain a timestamp or a serial number.
+//   - bytes2file: Saves a serialized bytes as a file.
 func RequestSaverNewFsSelfChecked[Q any](
 	serializer func(request Q) (selfCheckedBytes []byte, e error),
 	nameGen func() (fullpath string),
