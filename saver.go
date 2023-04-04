@@ -115,6 +115,12 @@ func RequestSaverNewFsSelfChecked[Q any](
 	)
 }
 
+// RequestSaverNewFsSelfCheckedWithFileMode creates a request saver which saves a request as a file.
+//
+// # Arguments
+//   - serializer: Gets a serialized bytes which may contain check sums.
+//   - nameGen: Creates a filename which may contain a timestamp or a serial number.
+//   - filemode: File mode bits(sample: 0755)
 func RequestSaverNewFsSelfCheckedWithFileMode[Q any](
 	serializer func(request Q) (selfCheckedBytes []byte, e error),
 	nameGen func() (fullpath string),
