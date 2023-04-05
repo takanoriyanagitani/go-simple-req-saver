@@ -140,6 +140,12 @@ func RequestSaverNewFsSelfCheckedWithFileMode[Q any](
 	)
 }
 
+// RequestSaverNewFsNoFsync creates a request saver which saves a request as a file without fsync.
+//
+// # Arguments
+//   - serializer: Gets a serialized bytes which may contain check sums.
+//   - nameGen: Creates a filename which may contain a timestamp or a serial number.
+//   - createFile: Creates a file which can be broken(deserializer must validate the file).
 func RequestSaverNewFsNoFsync[Q any](
 	serializer func(request Q) (selfCheckedBytes []byte, e error),
 	nameGen func() (fullpath string),
