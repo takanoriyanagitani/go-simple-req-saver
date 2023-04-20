@@ -1,0 +1,52 @@
+run:
+  concurrency: 8
+  tests: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+
+linters-settings:
+  lll:
+    line-length: 120
+    tab-width: 4
+
+linters:
+  fast: false
+  enable-all: true
+  disable:
+  - wrapcheck
+  - nosnakecase
+  - nonamedreturns
+  - ireturn
+  - deadcode
+  - ifshort
+  - exhaustivestruct
+  - maligned
+  - interfacer
+  - varcheck
+  - scopelint
+  - golint
+  - structcheck
+  - stylecheck
+  - nlreturn
+  - wsl
+  - exhaustruct
+  - revive
+  - gci
+  - gofumpt
+  - gochecknoglobals
+  - gomnd
+
+issues:
+  exclude-rules:
+  - path: _test\.go
+    linters:
+    - varnamelen
+    - usestdlibvars
+    - stylecheck
+    - paralleltest
+    - funlen
+    - whitespace
