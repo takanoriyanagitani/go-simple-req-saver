@@ -158,15 +158,15 @@ func RequestSaverNewFsNoFsync[Q any](
 		func(fullpath string, selfCheckedBytes []byte) (written int64, e error) {
 			return Compose(
 				createFile,
-				func(f *os.File) (int64, error) {
-					writer.Reset(f)
+				func(file *os.File) (int64, error) {
+					writer.Reset(file)
 
 					written, e = Compose(
 						Curry(io.Copy)(writer),
 						func(written int64) (int64, error) { return written, writer.Flush() },
 					)(bytes.NewReader(selfCheckedBytes))
 
-					return written, errors.Join(e, f.Close())
+					return written, errors.Join(e, file.Close())
 				},
 			)(fullpath)
 		},
