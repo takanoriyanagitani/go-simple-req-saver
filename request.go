@@ -80,7 +80,7 @@ func RequestSerializerNewGenericTar[H, B any](
 	errorHandler func(error),
 ) RequestSerializer[[]byte, H, B] {
 	var buf bytes.Buffer
-	var bs strings.Builder
+	var strBuf strings.Builder
 	return RequestSerializerNewGeneric(
 		getHeaders,
 		headerKey2string,
@@ -90,16 +90,16 @@ func RequestSerializerNewGenericTar[H, B any](
 			return tar.NewWriter(&buf)
 		},
 		func(partial *tar.Writer, namespace, name string, content []byte) {
-			bs.Reset()
-			_, _ = bs.WriteString(namespace) // always nil error
-			_, _ = bs.WriteString("/")       // always nil error
-			_, _ = bs.WriteString(name)      // always nil error
+			strBuf.Reset()
+			_, _ = strBuf.WriteString(namespace) // always nil error
+			_, _ = strBuf.WriteString("/")       // always nil error
+			_, _ = strBuf.WriteString(name)      // always nil error
 
 			_, e := Compose(
 				func(h *tar.Header) ([]byte, error) { return content, partial.WriteHeader(h) },
 				func(body []byte) (int, error) { return partial.Write(body) },
 			)(&tar.Header{
-				Name: bs.String(),
+				Name: strBuf.String(),
 				Mode: 0400,
 				Size: int64(len(content)),
 			})
