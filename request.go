@@ -159,7 +159,7 @@ func (c RequestStdConv) NewRequestStd2bytes(
 //   - limit: Number of bytes to read(resource limit).
 func RequestStdConvNew(limit int64) RequestStdConv {
 	var buf bytes.Buffer
-	return func(r *http.Request) (q RequestStd, e error) {
+	return func(req *http.Request) (q RequestStd, e error) {
 		return Compose(
 			Compose(
 				func(body io.ReadCloser) (int64, error) {
@@ -172,11 +172,11 @@ func RequestStdConvNew(limit int64) RequestStdConv {
 			),
 			func(body []byte) (q RequestStd, e error) {
 				_q := Request[http.Header, []byte]{
-					header: r.Header,
+					header: req.Header,
 					body:   body,
 				}
 				return RequestStd(_q), nil
 			},
-		)(r.Body)
+		)(req.Body)
 	}
 }
