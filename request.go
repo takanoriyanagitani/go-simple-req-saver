@@ -51,16 +51,16 @@ func RequestSerializerNewGeneric[P, S, H, B any](
 ) RequestSerializer[S, H, B] {
 	const nsHeader = "header"
 	const nsBody = "body"
-	return func(q Request[H, B]) (serialized S, e error) {
+	return func(req Request[H, B]) (serialized S, e error) {
 		var partial P = initialize()
 		getHeaders(
-			q.header,
+			req.header,
 			func(key, val []byte) {
 				var keyString string = headerKey2string(key)
 				generic(partial, nsHeader, keyString, val)
 			},
 		)
-		var body []byte = getBodyBytes(q.body)
+		var body []byte = getBodyBytes(req.body)
 		generic(partial, nsBody, "body", body)
 		return finalize(partial)
 	}
