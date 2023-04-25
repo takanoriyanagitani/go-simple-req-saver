@@ -95,7 +95,7 @@ func RequestSerializerNewGenericTar[H, B any](
 			_, _ = strBuf.WriteString("/")       // always nil error
 			_, _ = strBuf.WriteString(name)      // always nil error
 
-			_, e := Compose(
+			_, err := Compose(
 				func(h *tar.Header) ([]byte, error) { return content, partial.WriteHeader(h) },
 				func(body []byte) (int, error) { return partial.Write(body) },
 			)(&tar.Header{
@@ -103,8 +103,8 @@ func RequestSerializerNewGenericTar[H, B any](
 				Mode: 0400,
 				Size: int64(len(content)),
 			})
-			if nil != e {
-				errorHandler(e)
+			if nil != err {
+				errorHandler(err)
 				return
 			}
 		},
