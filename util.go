@@ -4,12 +4,29 @@ func Compose[T, U, V any](
 	f func(T) (U, error),
 	g func(U) (V, error),
 ) func(T) (V, error) {
+	var partial func(U) func() (V, error) = curry1(g)
 	return func(t T) (v V, e error) {
 		u, e := f(t)
-		if nil != e {
-			return v, e
-		}
-		return g(u)
+		return ifOk(
+			nil == e,
+			partial(u),
+			func() error { return e },
+		)
+	}
+}
+
+func curry1[T, V any](f func(T) (V, error)) func(T) func() (V, error) {
+	return func(t T) func() (V, error) {
+		return func() (V, error) { return f(t) }
+	}
+}
+
+func ifOk[T any](chk bool, ok func() (T, error), ng func() error) (t T, e error) {
+	switch chk {
+	case true:
+		return ok()
+	default:
+		return t, ng()
 	}
 }
 
