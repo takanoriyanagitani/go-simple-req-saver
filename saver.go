@@ -24,6 +24,9 @@ func RequestSaverNewKV[Q, R, P any](
 	return Compose(request2kvpair, saver)
 }
 
+// TODO:
+//   - A. Rename:   RequestLimiterErrTooMany -> ErrTooManyRequestLimiter
+//   - B. Refactor: RequestLimiterErrTooMany -> request.limiter.ErrTooMany
 var RequestLimiterErrTooMany error = errors.New("too many requests")
 
 // RequestLimiter can be used to limit too many requests.
